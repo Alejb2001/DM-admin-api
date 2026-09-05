@@ -58,6 +58,15 @@ public class CampaignController(CampaignService campaigns, PermissionService per
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 
+    [AllowAnonymous]
+    [HttpGet("preview/{code}")]
+    public async Task<IActionResult> Preview(string code)
+    {
+        var preview = await campaigns.GetPreviewByCodeAsync(code);
+        if (preview is null) return NotFound(new { error = "Código no encontrado." });
+        return Ok(preview);
+    }
+
     [HttpPost("join")]
     public async Task<IActionResult> Join([FromBody] JoinCampaignDto dto)
     {

@@ -70,3 +70,5 @@ public record JoinCampaignDto(
 public record UpdateMemberRoleDto(
     [Required] Guid RoleId
 );
+
+public record CampaignPreviewDto(string Name);

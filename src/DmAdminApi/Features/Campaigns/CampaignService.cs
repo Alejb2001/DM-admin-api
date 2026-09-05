@@ -228,6 +228,13 @@ public class CampaignService(AppDbContext db, IEmailService email, IOptions<Emai
         return campaign.JoinCode;
     }
 
+    public async Task<CampaignPreviewDto?> GetPreviewByCodeAsync(string code)
+    {
+        var campaign = await db.Campaigns
+            .FirstOrDefaultAsync(c => c.JoinCode == code.ToUpper());
+        return campaign is null ? null : new CampaignPreviewDto(campaign.Name);
+    }
+
     private async Task<string> GenerateUniqueJoinCodeAsync()
     {
         string code;
