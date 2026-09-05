@@ -18,8 +18,5 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore src/DmAdminApi/DmAdminApi.csproj
-
       - name: Build
-        run: dotnet build src/DmAdminApi/DmAdminApi.csproj -c Release --no-restore
+        run: dotnet build src/DmAdminApi/DmAdminApi.csproj -c Release
