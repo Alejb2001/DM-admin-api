@@ -1,11 +1,13 @@
 using DmAdminApi.Features.Campaigns.Dtos;
 using DmAdminApi.Infrastructure.Data;
 using DmAdminApi.Infrastructure.Data.Entities;
+using DmAdminApi.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace DmAdminApi.Features.Campaigns;
 
-public class CampaignService(AppDbContext db)
+public class CampaignService(AppDbContext db, IEmailService email, IOptions<EmailSettings> emailSettings)
 {
     public async Task<List<CampaignDto>> GetUserCampaignsAsync(Guid userId)
     {
@@ -95,6 +97,9 @@ public class CampaignService(AppDbContext db)
         var role = await db.CampaignRoles.FindAsync(dto.RoleId)
             ?? throw new KeyNotFoundException("Role not found.");
 
+        var campaign = await db.Campaigns.FindAsync(campaignId)
+            ?? throw new KeyNotFoundException("Campaign not found.");
+
         var invitation = new CampaignInvitation
         {
             CampaignId = campaignId,
@@ -105,6 +110,13 @@ public class CampaignService(AppDbContext db)
         };
         db.CampaignInvitations.Add(invitation);
         await db.SaveChangesAsync();
+
+        if (!string.IsNullOrEmpty(dto.Email))
+        {
+            var appBase = emailSettings.Value.AppBaseUrl.TrimEnd('/');
+            var inviteUrl = $"{appBase}/join?token={invitation.Token}";
+            _ = email.SendCampaignInvitationAsync(dto.Email, dto.RecipientName ?? dto.Email, campaign.Name, inviteUrl);
+        }
 
         return new InvitationDto(invitation.Id, invitation.Token, role.Name, invitation.ExpiresAt);
     }

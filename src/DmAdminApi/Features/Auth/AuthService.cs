@@ -2,11 +2,12 @@ using DmAdminApi.Features.Auth.Dtos;
 using DmAdminApi.Infrastructure.Auth;
 using DmAdminApi.Infrastructure.Data;
 using DmAdminApi.Infrastructure.Data.Entities;
+using DmAdminApi.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace DmAdminApi.Features.Auth;
 
-public class AuthService(AppDbContext db, JwtService jwt)
+public class AuthService(AppDbContext db, JwtService jwt, IEmailService email)
 {
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
     {
@@ -23,6 +24,8 @@ public class AuthService(AppDbContext db, JwtService jwt)
 
         db.Users.Add(user);
         await db.SaveChangesAsync();
+
+        _ = email.SendWelcomeAsync(user.Email, user.DisplayName);
 
         return await IssueTokensAsync(user);
     }

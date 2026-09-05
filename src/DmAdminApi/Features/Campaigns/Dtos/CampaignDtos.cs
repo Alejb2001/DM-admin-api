@@ -48,7 +48,9 @@ public record RoleDto(
 
 public record CreateInvitationDto(
     [Required] Guid RoleId,
-    int ExpiryHours = 168   // 7 days
+    int ExpiryHours = 168,  // 7 days
+    [EmailAddress] string? Email = null,
+    string? RecipientName = null
 );
 
 public record InvitationDto(
