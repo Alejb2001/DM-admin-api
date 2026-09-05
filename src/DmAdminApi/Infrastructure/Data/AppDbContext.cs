@@ -56,6 +56,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(c => c.Id);
             e.Property(c => c.Id).HasDefaultValueSql("gen_random_uuid()");
             e.Property(c => c.Name).IsRequired().HasMaxLength(200);
+            e.Property(c => c.JoinCode).IsRequired().HasMaxLength(8)
+             .HasDefaultValueSql("upper(substring(md5(random()::text), 1, 8))");
+            e.HasIndex(c => c.JoinCode).IsUnique();
             e.Property(c => c.CreatedAt).HasDefaultValueSql("now()");
             e.HasOne(c => c.Owner)
              .WithMany()

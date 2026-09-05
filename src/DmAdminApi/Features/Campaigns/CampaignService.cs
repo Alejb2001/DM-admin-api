@@ -42,7 +42,8 @@ public class CampaignService(AppDbContext db, IEmailService email, IOptions<Emai
             campaign.Members.Select(m => new MemberDto(
                 m.UserId, m.User.DisplayName, m.User.AvatarUrl,
                 m.RoleId, m.Role.Name, m.JoinedAt)).ToList(),
-            campaign.Roles.Select(r => new RoleDto(r.Id, r.Name, r.IsSystemDefault)).ToList()
+            campaign.Roles.Select(r => new RoleDto(r.Id, r.Name, r.IsSystemDefault)).ToList(),
+            campaign.JoinCode
         );
     }
 
@@ -53,6 +54,7 @@ public class CampaignService(AppDbContext db, IEmailService email, IOptions<Emai
             OwnerId = ownerId,
             Name = dto.Name,
             Description = dto.Description,
+            JoinCode = await GenerateUniqueJoinCodeAsync(),
             CreatedAt = DateTime.UtcNow,
         };
         db.Campaigns.Add(campaign);
@@ -183,5 +185,54 @@ public class CampaignService(AppDbContext db, IEmailService email, IOptions<Emai
 
         db.CampaignMembers.Remove(member);
         await db.SaveChangesAsync();
+    }
+
+    public async Task<CampaignDto> JoinByCodeAsync(string code, Guid userId)
+    {
+        var campaign = await db.Campaigns
+            .Include(c => c.Roles)
+            .FirstOrDefaultAsync(c => c.JoinCode == code.ToUpper())
+            ?? throw new KeyNotFoundException("Código de campaña no encontrado.");
+
+        if (campaign.OwnerId == userId)
+            throw new InvalidOperationException("Eres el director de esta campaña.");
+
+        var alreadyMember = await db.CampaignMembers
+            .AnyAsync(m => m.CampaignId == campaign.Id && m.UserId == userId);
+        if (alreadyMember)
+            throw new InvalidOperationException("Ya eres miembro de esta campaña.");
+
+        var playerRole = campaign.Roles.FirstOrDefault(r => r.Name == SystemRoles.Player)
+            ?? campaign.Roles.First();
+
+        db.CampaignMembers.Add(new CampaignMember
+        {
+            CampaignId = campaign.Id,
+            UserId = userId,
+            RoleId = playerRole.Id,
+            JoinedAt = DateTime.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        return new CampaignDto(campaign.Id, campaign.Name, campaign.Description,
+            campaign.OwnerId, campaign.CreatedAt, playerRole.Name);
+    }
+
+    public async Task<string> RegenerateCodeAsync(Guid campaignId)
+    {
+        var campaign = await db.Campaigns.FindAsync(campaignId)
+            ?? throw new KeyNotFoundException("Campaign not found.");
+
+        campaign.JoinCode = await GenerateUniqueJoinCodeAsync();
+        await db.SaveChangesAsync();
+        return campaign.JoinCode;
+    }
+
+    private async Task<string> GenerateUniqueJoinCodeAsync()
+    {
+        string code;
+        do { code = Guid.NewGuid().ToString("N")[..8].ToUpper(); }
+        while (await db.Campaigns.AnyAsync(c => c.JoinCode == code));
+        return code;
     }
 }

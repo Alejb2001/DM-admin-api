@@ -28,8 +28,11 @@ public record CampaignDetailDto(
     Guid OwnerId,
     DateTime CreatedAt,
     List<MemberDto> Members,
-    List<RoleDto> Roles
+    List<RoleDto> Roles,
+    string JoinCode
 );
+
+public record JoinByCodeDto([Required] string Code);
 
 public record MemberDto(
     Guid UserId,

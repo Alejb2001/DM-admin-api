@@ -65,6 +65,22 @@ public class CampaignController(CampaignService campaigns, PermissionService per
         catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
     }
 
+    [HttpPost("join-by-code")]
+    public async Task<IActionResult> JoinByCode([FromBody] JoinByCodeDto dto)
+    {
+        try { return Ok(await campaigns.JoinByCodeAsync(dto.Code, CurrentUserId)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpPost("{id:guid}/regenerate-code")]
+    public async Task<IActionResult> RegenerateCode(Guid id)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(id, CurrentUserId)) return Forbid();
+        try { return Ok(new { joinCode = await campaigns.RegenerateCodeAsync(id) }); }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
     // ── Members ───────────────────────────────────────────────────────────────
 
     [HttpPut("{id:guid}/members/{memberId:guid}/role")]
