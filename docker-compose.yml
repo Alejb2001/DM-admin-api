@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dm_admin_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=dm_admin_dev;Username=postgres;Password=postgres"
+      Jwt__Key: "${JWT_KEY:-dev-only-secret-key-change-in-production-32chars}"
+      Jwt__Issuer: "dm-admin-api"
+      Jwt__Audience: "dm-admin-app"
+      Cors__AllowedOrigins__0: "http://localhost:4200"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

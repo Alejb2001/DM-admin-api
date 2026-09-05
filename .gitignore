@@ -1,0 +1,34 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# .NET local secrets and config overrides — NEVER commit these
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.user
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Visual Studio
+.vs/
+*.suo
+*.userosscache
+*.sln.docview
+
+# Rider
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Docker override
+docker-compose.override.yml
+
+# Claude Code local metadata
+.claude/
