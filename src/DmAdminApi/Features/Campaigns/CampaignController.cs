@@ -29,7 +29,8 @@ public class CampaignController(CampaignService campaigns, PermissionService per
     public async Task<IActionResult> Create([FromBody] CreateCampaignDto dto)
     {
         var result = await campaigns.CreateAsync(dto, CurrentUserId);
-        return CreatedAtAction(nameof(GetDetail), new { id = result.Id }, result);
+        var detail = await campaigns.GetCampaignDetailAsync(result.Id);
+        return CreatedAtAction(nameof(GetDetail), new { id = result.Id }, detail);
     }
 
     [HttpPut("{id:guid}")]

@@ -15,7 +15,7 @@ public class AuthController(AuthService authService) : ControllerBase
         try
         {
             var result = await authService.RegisterAsync(dto);
-            return Ok(result);
+            return StatusCode(201, result);
         }
         catch (InvalidOperationException ex)
         {
