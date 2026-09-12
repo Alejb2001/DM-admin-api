@@ -4,6 +4,7 @@ using DmAdminApi.Features.Auth;
 using DmAdminApi.Features.Campaigns;
 using DmAdminApi.Features.Hubs;
 using DmAdminApi.Features.Permissions;
+using DmAdminApi.Features.Sessions;
 using DmAdminApi.Features.Subscriptions;
 using DmAdminApi.Features.World;
 using DmAdminApi.Infrastructure.Auth;
@@ -74,6 +75,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PlanLimits>();
         services.AddSingleton<PresenceTracker>();
         services.AddScoped<ExportService>();
+        services.AddScoped<SessionService>();
+        services.AddScoped<ChatService>();
+        services.AddSingleton<SessionPresenceTracker>();
         services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
         services.Configure<EmailSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, SmtpEmailService>();

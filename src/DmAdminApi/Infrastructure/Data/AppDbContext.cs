@@ -18,6 +18,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RelationshipType> RelationshipTypes => Set<RelationshipType>();
     public DbSet<EntityRelationship> EntityRelationships => Set<EntityRelationship>();
     public DbSet<EntityChangeLog> EntityChangeLogs => Set<EntityChangeLog>();
+    public DbSet<GameSession> GameSessions => Set<GameSession>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
     protected override void OnModelCreating(ModelBuilder m)
     {
@@ -252,6 +254,44 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany(rt => rt.Relationships)
              .HasForeignKey(er => er.RelationshipTypeId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── GameSessions ──────────────────────────────────────────────────────
+        m.Entity<GameSession>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(s => s.Name).IsRequired().HasMaxLength(200);
+            e.Property(s => s.Status).IsRequired().HasMaxLength(20).HasDefaultValue("active");
+            e.Property(s => s.StartedAt).HasDefaultValueSql("now()");
+            e.HasIndex(s => new { s.CampaignId, s.StartedAt });
+            e.HasOne(s => s.Campaign)
+             .WithMany()
+             .HasForeignKey(s => s.CampaignId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(s => s.CreatedBy)
+             .WithMany()
+             .HasForeignKey(s => s.CreatedById)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── ChatMessages ──────────────────────────────────────────────────────
+        m.Entity<ChatMessage>(e =>
+        {
+            e.HasKey(cm => cm.Id);
+            e.Property(cm => cm.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(cm => cm.Type).IsRequired().HasMaxLength(20);
+            e.Property(cm => cm.Content).IsRequired();
+            e.Property(cm => cm.DiceResultJson).HasColumnName("dice_result").HasColumnType("jsonb");
+            e.HasIndex(cm => new { cm.SessionId, cm.CreatedAt });
+            e.HasOne(cm => cm.Session)
+             .WithMany(s => s.Messages)
+             .HasForeignKey(cm => cm.SessionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(cm => cm.User)
+             .WithMany()
+             .HasForeignKey(cm => cm.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

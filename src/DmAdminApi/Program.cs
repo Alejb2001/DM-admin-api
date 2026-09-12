@@ -1,6 +1,7 @@
 using DmAdminApi.Common.Extensions;
 using DmAdminApi.Common.Middleware;
 using DmAdminApi.Features.Hubs;
+using DmAdminApi.Features.Sessions;
 using DmAdminApi.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -63,6 +64,7 @@ try
     app.MapControllers();
 
     app.MapHub<CampaignHub>("/hubs/campaign");
+    app.MapHub<SessionHub>("/hubs/session");
 
     app.Run();
 }
