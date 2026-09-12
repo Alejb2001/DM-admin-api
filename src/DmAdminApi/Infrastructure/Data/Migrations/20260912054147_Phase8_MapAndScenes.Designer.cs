@@ -4,6 +4,7 @@ using System.Text.Json;
 using DmAdminApi.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DmAdminApi.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260912054147_Phase8_MapAndScenes")]
+    partial class Phase8_MapAndScenes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,49 +163,6 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.HasIndex("CampaignId");
 
                     b.ToTable("CampaignRoles");
-                });
-
-            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.CharacterResource", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("#e53935");
-
-                    b.Property<int>("Current")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("EntityId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Max")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("now()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EntityId");
-
-                    b.ToTable("CharacterResources");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.ChatMessage", b =>
@@ -437,9 +397,6 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<bool>("IsRequired")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsRollFormula")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -851,17 +808,6 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Campaign");
-                });
-
-            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.CharacterResource", b =>
-                {
-                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.WorldEntity", "Entity")
-                        .WithMany()
-                        .HasForeignKey("EntityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Entity");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.ChatMessage", b =>

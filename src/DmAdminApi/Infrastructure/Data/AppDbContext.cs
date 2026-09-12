@@ -20,6 +20,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<EntityChangeLog> EntityChangeLogs => Set<EntityChangeLog>();
     public DbSet<GameSession> GameSessions => Set<GameSession>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+    public DbSet<SessionScene> SessionScenes => Set<SessionScene>();
+    public DbSet<MapToken> MapTokens => Set<MapToken>();
+    public DbSet<CharacterResource> CharacterResources => Set<CharacterResource>();
 
     protected override void OnModelCreating(ModelBuilder m)
     {
@@ -292,6 +295,66 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(cm => cm.UserId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── SessionScenes ─────────────────────────────────────────────────────
+        m.Entity<SessionScene>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(s => s.Name).IsRequired().HasMaxLength(200);
+            e.Property(s => s.GridSize).HasDefaultValue(50);
+            e.Property(s => s.GridEnabled).HasDefaultValue(true);
+            e.Property(s => s.IsActive).HasDefaultValue(false);
+            e.Property(s => s.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(s => s.SessionId);
+            e.HasOne(s => s.Session)
+             .WithMany()
+             .HasForeignKey(s => s.SessionId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── CharacterResources ────────────────────────────────────────────────
+        m.Entity<CharacterResource>(e =>
+        {
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(r => r.Name).IsRequired().HasMaxLength(100);
+            e.Property(r => r.Color).IsRequired().HasMaxLength(20).HasDefaultValue("#e53935");
+            e.Property(r => r.UpdatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(r => r.EntityId);
+            e.HasOne(r => r.Entity)
+             .WithMany()
+             .HasForeignKey(r => r.EntityId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── MapTokens ─────────────────────────────────────────────────────────
+        m.Entity<MapToken>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(t => t.Label).IsRequired().HasMaxLength(100);
+            e.Property(t => t.Color).IsRequired().HasMaxLength(20).HasDefaultValue("#7E57C2");
+            e.Property(t => t.Width).HasDefaultValue(1);
+            e.Property(t => t.Height).HasDefaultValue(1);
+            e.Property(t => t.IsVisible).HasDefaultValue(true);
+            e.Property(t => t.UpdatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(t => t.SceneId);
+            e.HasOne(t => t.Scene)
+             .WithMany(s => s.Tokens)
+             .HasForeignKey(t => t.SceneId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.Entity)
+             .WithMany()
+             .HasForeignKey(t => t.EntityId)
+             .IsRequired(false)
+             .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(t => t.Controller)
+             .WithMany()
+             .HasForeignKey(t => t.ControlledBy)
+             .IsRequired(false)
+             .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

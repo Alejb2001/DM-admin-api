@@ -242,7 +242,7 @@ public class WorldEntityService(
 
     private static WorldEntityDto ToDto(WorldEntity e) => new(
         e.Id, e.CampaignId, e.EntityTypeId, e.EntityType.Name, e.EntityType.Icon, e.EntityType.Color,
-        e.EntityType.Fields.Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder)).ToList(),
+        e.EntityType.Fields.Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder, f.IsRollFormula)).ToList(),
         e.Name, e.Slug, e.CreatedBy, e.CustomFields, e.CreatedAt, e.UpdatedAt,
         e.Permissions.Select(p => new PermissionDto(p.RoleId, p.Role.Name, p.CanView, p.CanEdit)).ToList()
     );

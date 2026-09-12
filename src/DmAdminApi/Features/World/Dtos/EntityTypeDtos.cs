@@ -7,7 +7,8 @@ public record EntityTypeFieldDto(
     string Name,
     string FieldType,
     bool IsRequired,
-    int SortOrder
+    int SortOrder,
+    bool IsRollFormula
 );
 
 public record EntityTypeWithFieldsDto(
@@ -36,12 +37,14 @@ public record CreateEntityTypeFieldDto(
     [Required, MaxLength(100)] string Name,
     [Required] string FieldType,   // text|number|date|boolean|reference|richtext|url
     bool IsRequired,
-    int SortOrder
+    int SortOrder,
+    bool IsRollFormula = false
 );
 
 public record UpdateEntityTypeFieldDto(
     [Required, MaxLength(100)] string Name,
     [Required] string FieldType,
     bool IsRequired,
-    int SortOrder
+    int SortOrder,
+    bool IsRollFormula = false
 );

@@ -56,3 +56,18 @@ public class SessionHub(SessionPresenceTracker presence, AppDbContext db) : Hub
         await base.OnDisconnectedAsync(exception);
     }
 }
+
+public static class MapEvents
+{
+    public const string SceneActivated = "SceneActivated";
+    public const string SceneUpdated   = "SceneUpdated";
+    public const string TokenAdded     = "TokenAdded";
+    public const string TokenMoved     = "TokenMoved";
+    public const string TokenUpdated   = "TokenUpdated";
+    public const string TokenRemoved   = "TokenRemoved";
+}
+
+public static class SheetEvents
+{
+    public const string ResourceUpdated = "ResourceUpdated";
+}

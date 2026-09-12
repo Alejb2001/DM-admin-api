@@ -8,6 +8,7 @@ public class EntityTypeField
     public string FieldType { get; set; } = string.Empty;  // text|number|date|boolean|reference|richtext|url
     public bool IsRequired { get; set; }
     public int SortOrder { get; set; }
+    public bool IsRollFormula { get; set; }  // number fields only; marks as dice-rollable
 
     public EntityType EntityType { get; set; } = null!;
 }

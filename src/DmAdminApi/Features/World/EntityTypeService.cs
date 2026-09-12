@@ -16,7 +16,7 @@ public class EntityTypeService(AppDbContext db)
             .Select(et => new EntityTypeWithFieldsDto(
                 et.Id, et.Name, et.Icon, et.Color, et.IsSystemDefault, et.CampaignId,
                 et.Fields.OrderBy(f => f.SortOrder)
-                    .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder))
+                    .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder, f.IsRollFormula))
                     .ToList()))
             .ToListAsync();
     }
@@ -88,7 +88,7 @@ public class EntityTypeService(AppDbContext db)
         return await db.EntityTypeFields
             .Where(f => f.EntityTypeId == typeId)
             .OrderBy(f => f.SortOrder)
-            .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder))
+            .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder, f.IsRollFormula))
             .ToListAsync();
     }
 
@@ -110,12 +110,13 @@ public class EntityTypeService(AppDbContext db)
             FieldType = dto.FieldType,
             IsRequired = dto.IsRequired,
             SortOrder = dto.SortOrder,
+            IsRollFormula = dto.IsRollFormula,
         };
 
         db.EntityTypeFields.Add(field);
         await db.SaveChangesAsync();
 
-        return new EntityTypeFieldDto(field.Id, field.Name, field.FieldType, field.IsRequired, field.SortOrder);
+        return new EntityTypeFieldDto(field.Id, field.Name, field.FieldType, field.IsRequired, field.SortOrder, field.IsRollFormula);
     }
 
     public async Task<EntityTypeFieldDto> UpdateFieldAsync(Guid typeId, Guid campaignId, Guid fieldId, UpdateEntityTypeFieldDto dto)
@@ -131,9 +132,10 @@ public class EntityTypeService(AppDbContext db)
         field.FieldType = dto.FieldType;
         field.IsRequired = dto.IsRequired;
         field.SortOrder = dto.SortOrder;
+        field.IsRollFormula = dto.IsRollFormula;
         await db.SaveChangesAsync();
 
-        return new EntityTypeFieldDto(field.Id, field.Name, field.FieldType, field.IsRequired, field.SortOrder);
+        return new EntityTypeFieldDto(field.Id, field.Name, field.FieldType, field.IsRequired, field.SortOrder, field.IsRollFormula);
     }
 
     public async Task DeleteFieldAsync(Guid typeId, Guid campaignId, Guid fieldId)
@@ -159,6 +161,6 @@ public class EntityTypeService(AppDbContext db)
     private static EntityTypeWithFieldsDto ToDto(EntityType et) => new(
         et.Id, et.Name, et.Icon, et.Color, et.IsSystemDefault, et.CampaignId,
         et.Fields.OrderBy(f => f.SortOrder)
-            .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder))
+            .Select(f => new EntityTypeFieldDto(f.Id, f.Name, f.FieldType, f.IsRequired, f.SortOrder, f.IsRollFormula))
             .ToList());
 }
