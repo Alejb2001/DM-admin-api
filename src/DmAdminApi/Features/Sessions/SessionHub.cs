@@ -71,3 +71,19 @@ public static class SheetEvents
 {
     public const string ResourceUpdated = "ResourceUpdated";
 }
+
+public static class FogEvents
+{
+    public const string FogZoneAdded   = "FogZoneAdded";
+    public const string FogZoneRemoved = "FogZoneRemoved";
+    public const string FogCleared     = "FogCleared";
+    public const string FogToggled     = "FogToggled";
+}
+
+public static class CombatEvents
+{
+    public const string InitiativeUpdated    = "InitiativeUpdated";
+    public const string InitiativeTurnChanged = "InitiativeTurnChanged";
+    public const string ConditionAdded       = "ConditionAdded";
+    public const string ConditionRemoved     = "ConditionRemoved";
+}

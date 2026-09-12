@@ -4,6 +4,7 @@ using DmAdminApi.Features.Auth;
 using DmAdminApi.Features.Campaigns;
 using DmAdminApi.Features.Hubs;
 using DmAdminApi.Features.CharacterSheets;
+using DmAdminApi.Features.VttAdvanced;
 using DmAdminApi.Features.Maps;
 using DmAdminApi.Features.Permissions;
 using DmAdminApi.Features.Sessions;
@@ -82,6 +83,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<SessionPresenceTracker>();
         services.AddScoped<SceneService>();
         services.AddScoped<CharacterSheetService>();
+        services.AddScoped<FogService>();
+        services.AddScoped<InitiativeService>();
+        services.AddScoped<TokenConditionService>();
         services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
         services.Configure<EmailSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, SmtpEmailService>();

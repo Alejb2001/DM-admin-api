@@ -23,6 +23,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<SessionScene> SessionScenes => Set<SessionScene>();
     public DbSet<MapToken> MapTokens => Set<MapToken>();
     public DbSet<CharacterResource> CharacterResources => Set<CharacterResource>();
+    public DbSet<FogRevealedZone> FogRevealedZones => Set<FogRevealedZone>();
+    public DbSet<InitiativeEntry> InitiativeEntries => Set<InitiativeEntry>();
+    public DbSet<TokenCondition> TokenConditions => Set<TokenCondition>();
 
     protected override void OnModelCreating(ModelBuilder m)
     {
@@ -306,6 +309,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(s => s.GridSize).HasDefaultValue(50);
             e.Property(s => s.GridEnabled).HasDefaultValue(true);
             e.Property(s => s.IsActive).HasDefaultValue(false);
+            e.Property(s => s.FogEnabled).HasDefaultValue(false);
             e.Property(s => s.CreatedAt).HasDefaultValueSql("now()");
             e.HasIndex(s => s.SessionId);
             e.HasOne(s => s.Session)
@@ -353,6 +357,52 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(t => t.Controller)
              .WithMany()
              .HasForeignKey(t => t.ControlledBy)
+             .IsRequired(false)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── TokenConditions ───────────────────────────────────────────────────
+        m.Entity<TokenCondition>(e =>
+        {
+            e.HasKey(tc => tc.Id);
+            e.Property(tc => tc.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(tc => tc.Condition).IsRequired().HasMaxLength(50);
+            e.HasOne(tc => tc.Token)
+             .WithMany(t => t.Conditions)
+             .HasForeignKey(tc => tc.TokenId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── FogRevealedZones ──────────────────────────────────────────────────
+        m.Entity<FogRevealedZone>(e =>
+        {
+            e.HasKey(f => f.Id);
+            e.Property(f => f.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(f => f.Shape).IsRequired().HasMaxLength(20).HasDefaultValue("rect");
+            e.Property(f => f.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(f => f.SceneId);
+            e.HasOne(f => f.Scene)
+             .WithMany()
+             .HasForeignKey(f => f.SceneId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── InitiativeEntries ─────────────────────────────────────────────────
+        m.Entity<InitiativeEntry>(e =>
+        {
+            e.HasKey(i => i.Id);
+            e.Property(i => i.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(i => i.Name).IsRequired().HasMaxLength(200);
+            e.Property(i => i.IsActive).HasDefaultValue(false);
+            e.Property(i => i.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(i => i.SessionId);
+            e.HasOne(i => i.Session)
+             .WithMany()
+             .HasForeignKey(i => i.SessionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.Token)
+             .WithMany()
+             .HasForeignKey(i => i.TokenId)
              .IsRequired(false)
              .OnDelete(DeleteBehavior.SetNull);
         });

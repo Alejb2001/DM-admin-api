@@ -19,4 +19,5 @@ public class MapToken
     public SessionScene Scene { get; set; } = null!;
     public WorldEntity? Entity { get; set; }
     public User? Controller { get; set; }
+    public ICollection<TokenCondition> Conditions { get; set; } = [];
 }

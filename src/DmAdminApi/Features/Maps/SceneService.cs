@@ -77,11 +77,12 @@ public class SceneService(AppDbContext db)
 
     public async Task<List<MapTokenDto>> GetTokensAsync(Guid sceneId)
     {
-        return await db.MapTokens
+        var tokens = await db.MapTokens
+            .Include(t => t.Conditions)
             .Where(t => t.SceneId == sceneId)
             .OrderBy(t => t.UpdatedAt)
-            .Select(t => ToTokenDto(t))
             .ToListAsync();
+        return tokens.Select(ToTokenDto).ToList();
     }
 
     public async Task<MapTokenDto> AddTokenAsync(Guid sceneId, CreateTokenDto dto)
@@ -151,9 +152,10 @@ public class SceneService(AppDbContext db)
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static SceneDto ToSceneDto(SessionScene s) =>
-        new(s.Id, s.SessionId, s.Name, s.BackgroundUrl, s.GridSize, s.GridEnabled, s.IsActive);
+        new(s.Id, s.SessionId, s.Name, s.BackgroundUrl, s.GridSize, s.GridEnabled, s.IsActive, s.FogEnabled);
 
     private static MapTokenDto ToTokenDto(MapToken t) =>
         new(t.Id, t.SceneId, t.EntityId, t.Label, t.ImageUrl, t.Color,
-            t.X, t.Y, t.Width, t.Height, t.IsVisible, t.ControlledBy);
+            t.X, t.Y, t.Width, t.Height, t.IsVisible, t.ControlledBy,
+            t.Conditions.Select(c => new TokenConditionInfo(c.Id, c.Condition)).ToList());
 }

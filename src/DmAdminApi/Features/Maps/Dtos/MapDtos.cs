@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DmAdminApi.Features.Maps.Dtos;
 
+public record TokenConditionInfo(Guid Id, string Condition);
+
 public record SceneDto(
     Guid Id,
     Guid SessionId,
@@ -9,7 +11,8 @@ public record SceneDto(
     string? BackgroundUrl,
     int GridSize,
     bool GridEnabled,
-    bool IsActive
+    bool IsActive,
+    bool FogEnabled
 );
 
 public record CreateSceneDto(
@@ -38,7 +41,8 @@ public record MapTokenDto(
     int Width,
     int Height,
     bool IsVisible,
-    Guid? ControlledBy
+    Guid? ControlledBy,
+    List<TokenConditionInfo> Conditions
 );
 
 public record CreateTokenDto(
