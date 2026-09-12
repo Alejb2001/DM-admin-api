@@ -49,6 +49,37 @@ public class SmtpEmailService(IOptions<EmailSettings> options, ILogger<SmtpEmail
         await SendAsync(toEmail, displayName, subject, body);
     }
 
+    public async Task SendEmailVerificationAsync(string toEmail, string displayName, string verificationUrl)
+    {
+        var subject = "Verifica tu correo en DM Admin";
+        var body = $"""
+            <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
+              <div style="background:#3F51B5;padding:24px 32px;border-radius:8px 8px 0 0">
+                <h1 style="color:#fff;margin:0;font-size:22px">DM Admin</h1>
+              </div>
+              <div style="background:#fff;border:1px solid #e0e0e0;border-top:none;padding:32px;border-radius:0 0 8px 8px">
+                <h2 style="margin-top:0;color:#3F51B5">Verifica tu correo electrónico</h2>
+                <p>Hola <strong>{displayName}</strong>,</p>
+                <p>Gracias por registrarte. Para activar tu cuenta haz clic en el botón de abajo. El enlace es válido por <strong>24 horas</strong>.</p>
+                <p style="text-align:center;margin:32px 0">
+                  <a href="{verificationUrl}"
+                     style="background:#3F51B5;color:#fff;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block">
+                    Verificar mi cuenta
+                  </a>
+                </p>
+                <p style="color:#757575;font-size:13px">Si no creaste esta cuenta puedes ignorar este mensaje. El enlace expirará automáticamente.</p>
+                <hr style="border:none;border-top:1px solid #e0e0e0;margin:24px 0"/>
+                <p style="color:#9e9e9e;font-size:12px;margin:0">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:<br/>
+                  <a href="{verificationUrl}" style="color:#3F51B5;word-break:break-all">{verificationUrl}</a>
+                </p>
+              </div>
+            </div>
+            """;
+
+        await SendAsync(toEmail, displayName, subject, body);
+    }
+
     private async Task SendAsync(string toEmail, string toName, string subject, string htmlBody)
     {
         if (string.IsNullOrEmpty(_settings.SmtpHost))

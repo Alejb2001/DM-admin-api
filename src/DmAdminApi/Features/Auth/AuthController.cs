@@ -15,7 +15,7 @@ public class AuthController(AuthService authService) : ControllerBase
         try
         {
             var result = await authService.RegisterAsync(dto);
-            return StatusCode(201, result);
+            return Accepted(result);
         }
         catch (InvalidOperationException ex)
         {
@@ -31,10 +31,39 @@ public class AuthController(AuthService authService) : ControllerBase
             var result = await authService.LoginAsync(dto);
             return Ok(result);
         }
+        catch (EmailNotVerifiedException)
+        {
+            return StatusCode(403, new { error = "email_not_verified" });
+        }
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { error = ex.Message });
         }
+    }
+
+    [HttpGet("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+    {
+        try
+        {
+            var result = await authService.VerifyEmailAsync(token);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException)
+        {
+            return BadRequest(new { error = "invalid_token" });
+        }
+        catch (InvalidOperationException)
+        {
+            return BadRequest(new { error = "token_expired" });
+        }
+    }
+
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationDto dto)
+    {
+        await authService.ResendVerificationAsync(dto.Email);
+        return NoContent();
     }
 
     [HttpPost("refresh")]

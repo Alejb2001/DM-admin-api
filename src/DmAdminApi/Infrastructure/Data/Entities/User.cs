@@ -10,6 +10,9 @@ public class User
     public string SubscriptionTier { get; set; } = SubscriptionTiers.Free;
     public string? StripeCustomerId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool IsEmailVerified { get; set; } = false;
+    public string? EmailVerificationToken { get; set; }
+    public DateTime? EmailVerificationTokenExpiresAt { get; set; }
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }

@@ -42,6 +42,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(u => u.SubscriptionTier).IsRequired().HasMaxLength(20).HasDefaultValue("free");
             e.Property(u => u.StripeCustomerId).HasMaxLength(100);
             e.Property(u => u.CreatedAt).HasDefaultValueSql("now()");
+            e.Property(u => u.IsEmailVerified).HasDefaultValue(false);
+            e.Property(u => u.EmailVerificationToken).HasMaxLength(64);
+            e.Property(u => u.EmailVerificationTokenExpiresAt).IsRequired(false);
         });
 
         // ── RefreshTokens ─────────────────────────────────────────────────────
