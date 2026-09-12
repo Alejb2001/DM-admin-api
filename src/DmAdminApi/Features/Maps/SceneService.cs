@@ -110,7 +110,7 @@ public class SceneService(AppDbContext db)
 
     public async Task<MapTokenDto> MoveTokenAsync(Guid tokenId, MoveTokenDto dto, Guid userId, bool isDm)
     {
-        var token = await db.MapTokens.FindAsync(tokenId)
+        var token = await db.MapTokens.Include(t => t.Conditions).FirstOrDefaultAsync(t => t.Id == tokenId)
             ?? throw new KeyNotFoundException("Token no encontrado.");
 
         if (!isDm && token.ControlledBy != userId)
@@ -125,7 +125,7 @@ public class SceneService(AppDbContext db)
 
     public async Task<MapTokenDto> UpdateTokenAsync(Guid tokenId, UpdateTokenDto dto)
     {
-        var token = await db.MapTokens.FindAsync(tokenId)
+        var token = await db.MapTokens.Include(t => t.Conditions).FirstOrDefaultAsync(t => t.Id == tokenId)
             ?? throw new KeyNotFoundException("Token no encontrado.");
 
         token.Label = dto.Label;

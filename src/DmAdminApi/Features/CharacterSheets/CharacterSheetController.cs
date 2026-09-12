@@ -31,7 +31,7 @@ public class CharacterSheetController(CharacterSheetService sheetService) : Cont
         try
         {
             var resource = await sheetService.CreateResourceAsync(entityId, campaignId, dto, UserId);
-            return Ok(resource);
+            return StatusCode(201, resource);
         }
         catch (UnauthorizedAccessException) { return Forbid(); }
         catch (KeyNotFoundException e) { return NotFound(new { error = e.Message }); }
