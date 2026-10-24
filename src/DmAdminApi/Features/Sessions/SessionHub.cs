@@ -34,6 +34,13 @@ public class SessionHub(SessionPresenceTracker presence, AppDbContext db) : Hub
             .SendAsync("PresenceUpdated", presence.GetPresence(sid));
     }
 
+    public async Task SendPing(string sessionId, double x, double y)
+    {
+        if (!Guid.TryParse(sessionId, out var sid)) return;
+        await Clients.Group(sid.ToString())
+            .SendAsync(MapEvents.PingReceived, new { x, y });
+    }
+
     public async Task LeaveSession(string sessionId)
     {
         if (!Guid.TryParse(sessionId, out var sid)) return;
@@ -65,6 +72,7 @@ public static class MapEvents
     public const string TokenMoved     = "TokenMoved";
     public const string TokenUpdated   = "TokenUpdated";
     public const string TokenRemoved   = "TokenRemoved";
+    public const string PingReceived   = "PingReceived";
 }
 
 public static class SheetEvents
