@@ -135,6 +135,17 @@ public class SceneService(AppDbContext db)
         token.Height = dto.Height > 0 ? dto.Height : 1;
         token.IsVisible = dto.IsVisible;
         token.ControlledBy = dto.ControlledBy;
+        token.Bar1Value = dto.Bar1Value;
+        token.Bar1Max = dto.Bar1Max;
+        token.Bar1Color = dto.Bar1Color;
+        token.Bar2Value = dto.Bar2Value;
+        token.Bar2Max = dto.Bar2Max;
+        token.Bar2Color = dto.Bar2Color;
+        token.AuraRadius = dto.AuraRadius;
+        token.AuraColor = dto.AuraColor;
+        token.AuraOpacity = dto.AuraOpacity;
+        token.Rotation = dto.Rotation;
+        token.IsLocked = dto.IsLocked;
         token.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return ToTokenDto(token);
@@ -157,5 +168,9 @@ public class SceneService(AppDbContext db)
     private static MapTokenDto ToTokenDto(MapToken t) =>
         new(t.Id, t.SceneId, t.EntityId, t.Label, t.ImageUrl, t.Color,
             t.X, t.Y, t.Width, t.Height, t.IsVisible, t.ControlledBy,
-            t.Conditions.Select(c => new TokenConditionInfo(c.Id, c.Condition)).ToList());
+            t.Conditions.Select(c => new TokenConditionInfo(c.Id, c.Condition)).ToList(),
+            t.Bar1Value, t.Bar1Max, t.Bar1Color,
+            t.Bar2Value, t.Bar2Max, t.Bar2Color,
+            t.AuraRadius, t.AuraColor, t.AuraOpacity,
+            t.Rotation, t.IsLocked);
 }

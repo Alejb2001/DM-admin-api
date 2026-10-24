@@ -42,7 +42,18 @@ public record MapTokenDto(
     int Height,
     bool IsVisible,
     Guid? ControlledBy,
-    List<TokenConditionInfo> Conditions
+    List<TokenConditionInfo> Conditions,
+    int? Bar1Value,
+    int? Bar1Max,
+    string? Bar1Color,
+    int? Bar2Value,
+    int? Bar2Max,
+    string? Bar2Color,
+    double? AuraRadius,
+    string? AuraColor,
+    double AuraOpacity,
+    double Rotation,
+    bool IsLocked
 );
 
 public record CreateTokenDto(
@@ -66,5 +77,16 @@ public record UpdateTokenDto(
     int Width,
     int Height,
     bool IsVisible,
-    Guid? ControlledBy
+    Guid? ControlledBy,
+    int? Bar1Value,
+    int? Bar1Max,
+    string? Bar1Color,
+    int? Bar2Value,
+    int? Bar2Max,
+    string? Bar2Color,
+    double? AuraRadius,
+    string? AuraColor,
+    double AuraOpacity,
+    double Rotation,
+    bool IsLocked
 );

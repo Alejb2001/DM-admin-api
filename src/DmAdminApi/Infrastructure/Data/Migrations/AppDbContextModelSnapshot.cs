@@ -593,6 +593,38 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<string>("AuraColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<double>("AuraOpacity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.3);
+
+                    b.Property<double?>("AuraRadius")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Bar1Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int?>("Bar1Max")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Bar1Value")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Bar2Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int?>("Bar2Max")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Bar2Value")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -614,6 +646,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsLocked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("IsVisible")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -623,6 +660,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<double>("Rotation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.0);
 
                     b.Property<Guid>("SceneId")
                         .HasColumnType("uuid");
