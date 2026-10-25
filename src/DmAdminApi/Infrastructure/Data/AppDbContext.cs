@@ -348,6 +348,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(t => t.Height).HasDefaultValue(1);
             e.Property(t => t.IsVisible).HasDefaultValue(true);
             e.Property(t => t.UpdatedAt).HasDefaultValueSql("now()");
+            // Phase 12 properties
+            e.Property(t => t.Bar1Color).HasMaxLength(20);
+            e.Property(t => t.Bar2Color).HasMaxLength(20);
+            e.Property(t => t.AuraColor).HasMaxLength(20);
+            e.Property(t => t.AuraOpacity).HasDefaultValue(0.3);
+            e.Property(t => t.Rotation).HasDefaultValue(0.0);
+            e.Property(t => t.IsLocked).HasDefaultValue(false);
             e.HasIndex(t => t.SceneId);
             e.HasOne(t => t.Scene)
              .WithMany(s => s.Tokens)
@@ -420,7 +427,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(a => a.Points).IsRequired().HasColumnType("text");
             e.Property(a => a.Color).IsRequired().HasMaxLength(20).HasDefaultValue("#ef5350");
             e.Property(a => a.StrokeWidth).HasDefaultValue(2);
+            e.Property(a => a.FillColor).HasMaxLength(20);
             e.Property(a => a.FillOpacity).HasDefaultValue(0.0);
+            e.Property(a => a.Text).HasMaxLength(500);
             e.Property(a => a.FontSize).HasDefaultValue(16);
             e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
             e.HasIndex(a => a.SceneId);
