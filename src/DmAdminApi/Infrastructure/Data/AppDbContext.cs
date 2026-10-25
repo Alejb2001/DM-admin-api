@@ -26,6 +26,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FogRevealedZone> FogRevealedZones => Set<FogRevealedZone>();
     public DbSet<InitiativeEntry> InitiativeEntries => Set<InitiativeEntry>();
     public DbSet<TokenCondition> TokenConditions => Set<TokenCondition>();
+    public DbSet<SceneAnnotation> SceneAnnotations => Set<SceneAnnotation>();
 
     protected override void OnModelCreating(ModelBuilder m)
     {
@@ -408,6 +409,29 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .HasForeignKey(i => i.TokenId)
              .IsRequired(false)
              .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── SceneAnnotations ──────────────────────────────────────────────────
+        m.Entity<SceneAnnotation>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(a => a.Type).IsRequired().HasMaxLength(20).HasDefaultValue("pen");
+            e.Property(a => a.Points).IsRequired().HasColumnType("text");
+            e.Property(a => a.Color).IsRequired().HasMaxLength(20).HasDefaultValue("#ef5350");
+            e.Property(a => a.StrokeWidth).HasDefaultValue(2);
+            e.Property(a => a.FillOpacity).HasDefaultValue(0.0);
+            e.Property(a => a.FontSize).HasDefaultValue(16);
+            e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(a => a.SceneId);
+            e.HasOne(a => a.Scene)
+             .WithMany()
+             .HasForeignKey(a => a.SceneId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(a => a.Creator)
+             .WithMany()
+             .HasForeignKey(a => a.CreatedBy)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

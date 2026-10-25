@@ -1,3 +1,4 @@
+using System.Text.Json;
 using DmAdminApi.Features.Maps.Dtos;
 using DmAdminApi.Infrastructure.Data;
 using DmAdminApi.Infrastructure.Data.Entities;
@@ -160,10 +161,67 @@ public class SceneService(AppDbContext db)
         await db.SaveChangesAsync();
     }
 
+    // ── Annotations ───────────────────────────────────────────────────────────
+
+    public async Task<List<AnnotationDto>> GetAnnotationsAsync(Guid sceneId)
+    {
+        var list = await db.SceneAnnotations
+            .Where(a => a.SceneId == sceneId)
+            .OrderBy(a => a.CreatedAt)
+            .ToListAsync();
+        return list.Select(ToAnnotationDto).ToList();
+    }
+
+    public async Task<AnnotationDto> AddAnnotationAsync(Guid sceneId, CreateAnnotationDto dto, Guid userId)
+    {
+        var annotation = new SceneAnnotation
+        {
+            Id = Guid.NewGuid(),
+            SceneId = sceneId,
+            Type = dto.Type,
+            Points = JsonSerializer.Serialize(dto.Points),
+            Color = dto.Color,
+            StrokeWidth = dto.StrokeWidth,
+            FillColor = dto.FillColor,
+            FillOpacity = dto.FillOpacity,
+            Text = dto.Text,
+            FontSize = dto.FontSize,
+            CreatedBy = userId,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        db.SceneAnnotations.Add(annotation);
+        await db.SaveChangesAsync();
+        return ToAnnotationDto(annotation);
+    }
+
+    public async Task DeleteAnnotationAsync(Guid annotationId)
+    {
+        var annotation = await db.SceneAnnotations.FindAsync(annotationId)
+            ?? throw new KeyNotFoundException("Anotación no encontrada.");
+        db.SceneAnnotations.Remove(annotation);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ClearAnnotationsAsync(Guid sceneId)
+    {
+        await db.SceneAnnotations
+            .Where(a => a.SceneId == sceneId)
+            .ExecuteDeleteAsync();
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static SceneDto ToSceneDto(SessionScene s) =>
         new(s.Id, s.SessionId, s.Name, s.BackgroundUrl, s.GridSize, s.GridEnabled, s.IsActive, s.FogEnabled);
+
+    private static AnnotationDto ToAnnotationDto(SceneAnnotation a)
+    {
+        double[] pts;
+        try { pts = JsonSerializer.Deserialize<double[]>(a.Points) ?? []; }
+        catch { pts = []; }
+        return new(a.Id, a.SceneId, a.Type, pts, a.Color, a.StrokeWidth,
+                   a.FillColor, a.FillOpacity, a.Text, a.FontSize, a.CreatedBy, a.CreatedAt);
+    }
 
     private static MapTokenDto ToTokenDto(MapToken t) =>
         new(t.Id, t.SceneId, t.EntityId, t.Label, t.ImageUrl, t.Color,

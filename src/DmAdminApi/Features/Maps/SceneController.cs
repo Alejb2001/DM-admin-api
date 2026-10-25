@@ -143,6 +143,52 @@ public class SceneController(
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 
+    // ── Annotations ───────────────────────────────────────────────────────────
+
+    [HttpGet("{sceneId:guid}/annotations")]
+    public async Task<IActionResult> GetAnnotations(Guid campaignId, Guid sessionId, Guid sceneId)
+    {
+        if (!await IsMemberOrOwner(campaignId)) return Forbid();
+        return Ok(await scenes.GetAnnotationsAsync(sceneId));
+    }
+
+    [HttpPost("{sceneId:guid}/annotations")]
+    public async Task<IActionResult> AddAnnotation(
+        Guid campaignId, Guid sessionId, Guid sceneId, [FromBody] CreateAnnotationDto dto)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        var annotation = await scenes.AddAnnotationAsync(sceneId, dto, CurrentUserId);
+        await hub.Clients.Group(sessionId.ToString())
+            .SendAsync(AnnotationEvents.AnnotationAdded, annotation);
+        return StatusCode(201, annotation);
+    }
+
+    [HttpDelete("{sceneId:guid}/annotations/{annotationId:guid}")]
+    public async Task<IActionResult> DeleteAnnotation(
+        Guid campaignId, Guid sessionId, Guid sceneId, Guid annotationId)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        try
+        {
+            await scenes.DeleteAnnotationAsync(annotationId);
+            await hub.Clients.Group(sessionId.ToString())
+                .SendAsync(AnnotationEvents.AnnotationRemoved, annotationId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [HttpDelete("{sceneId:guid}/annotations")]
+    public async Task<IActionResult> ClearAnnotations(
+        Guid campaignId, Guid sessionId, Guid sceneId)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        await scenes.ClearAnnotationsAsync(sceneId);
+        await hub.Clients.Group(sessionId.ToString())
+            .SendAsync(AnnotationEvents.AnnotationsCleared, sceneId);
+        return NoContent();
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private async Task<bool> IsMemberOrOwner(Guid campaignId) =>

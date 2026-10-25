@@ -88,6 +88,13 @@ public static class FogEvents
     public const string FogToggled     = "FogToggled";
 }
 
+public static class AnnotationEvents
+{
+    public const string AnnotationAdded    = "AnnotationAdded";
+    public const string AnnotationRemoved  = "AnnotationRemoved";
+    public const string AnnotationsCleared = "AnnotationsCleared";
+}
+
 public static class CombatEvents
 {
     public const string InitiativeUpdated    = "InitiativeUpdated";
