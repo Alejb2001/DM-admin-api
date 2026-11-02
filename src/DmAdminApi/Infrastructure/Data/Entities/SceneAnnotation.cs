@@ -14,6 +14,7 @@ public class SceneAnnotation
     public double FillOpacity { get; set; } = 0;
     public string? Text { get; set; }
     public int FontSize { get; set; } = 16;
+    public bool IsGmOnly { get; set; }
     public Guid CreatedBy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 

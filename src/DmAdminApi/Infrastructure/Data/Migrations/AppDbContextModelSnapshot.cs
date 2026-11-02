@@ -517,6 +517,9 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Property<DateTimeOffset?>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("GmNotes")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -932,6 +935,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(16);
 
+                    b.Property<bool>("IsGmOnly")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Points")
                         .IsRequired()
                         .HasColumnType("text");
@@ -962,6 +970,57 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.HasIndex("SceneId");
 
                     b.ToTable("SceneAnnotations");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("#f44336");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<double>("Rotation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<Guid>("SceneId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("SizeInCells")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(3.0);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("circle");
+
+                    b.Property<double>("X")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SceneId");
+
+                    b.ToTable("SceneTemplates");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SessionScene", b =>
@@ -1532,6 +1591,17 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Creator");
+
+                    b.Navigation("Scene");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneTemplate", b =>
+                {
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.SessionScene", "Scene")
+                        .WithMany()
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Scene");
                 });

@@ -164,12 +164,11 @@ public class SceneService(AppDbContext db)
 
     // ── Annotations ───────────────────────────────────────────────────────────
 
-    public async Task<List<AnnotationDto>> GetAnnotationsAsync(Guid sceneId)
+    public async Task<List<AnnotationDto>> GetAnnotationsAsync(Guid sceneId, bool isDm)
     {
-        var list = await db.SceneAnnotations
-            .Where(a => a.SceneId == sceneId)
-            .OrderBy(a => a.CreatedAt)
-            .ToListAsync();
+        var query = db.SceneAnnotations.Where(a => a.SceneId == sceneId);
+        if (!isDm) query = query.Where(a => !a.IsGmOnly);
+        var list = await query.OrderBy(a => a.CreatedAt).ToListAsync();
         return list.Select(ToAnnotationDto).ToList();
     }
 
@@ -187,6 +186,7 @@ public class SceneService(AppDbContext db)
             FillOpacity = dto.FillOpacity,
             Text = dto.Text,
             FontSize = dto.FontSize,
+            IsGmOnly = dto.IsGmOnly,
             CreatedBy = userId,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -210,6 +210,50 @@ public class SceneService(AppDbContext db)
             .ExecuteDeleteAsync();
     }
 
+    // ── Templates ─────────────────────────────────────────────────────────────
+
+    public async Task<List<SceneTemplateDto>> GetTemplatesAsync(Guid sceneId)
+    {
+        return await db.SceneTemplates
+            .Where(t => t.SceneId == sceneId)
+            .Select(t => ToTemplateDto(t))
+            .ToListAsync();
+    }
+
+    public async Task<SceneTemplateDto> AddTemplateAsync(Guid sceneId, CreateTemplateDto dto)
+    {
+        var template = new SceneTemplate
+        {
+            Id = Guid.NewGuid(),
+            SceneId = sceneId,
+            Type = dto.Type,
+            X = dto.X,
+            Y = dto.Y,
+            Rotation = dto.Rotation,
+            Color = dto.Color,
+            SizeInCells = dto.SizeInCells > 0 ? dto.SizeInCells : 3,
+            Label = dto.Label,
+        };
+        db.SceneTemplates.Add(template);
+        await db.SaveChangesAsync();
+        return ToTemplateDto(template);
+    }
+
+    public async Task DeleteTemplateAsync(Guid templateId)
+    {
+        var template = await db.SceneTemplates.FindAsync(templateId)
+            ?? throw new KeyNotFoundException("Plantilla no encontrada.");
+        db.SceneTemplates.Remove(template);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ClearTemplatesAsync(Guid sceneId)
+    {
+        await db.SceneTemplates
+            .Where(t => t.SceneId == sceneId)
+            .ExecuteDeleteAsync();
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static SceneDto ToSceneDto(SessionScene s) =>
@@ -221,8 +265,11 @@ public class SceneService(AppDbContext db)
         try { pts = JsonSerializer.Deserialize<double[]>(a.Points) ?? []; }
         catch { pts = []; }
         return new(a.Id, a.SceneId, a.Type, pts, a.Color, a.StrokeWidth,
-                   a.FillColor, a.FillOpacity, a.Text, a.FontSize, a.CreatedBy, a.CreatedAt);
+                   a.FillColor, a.FillOpacity, a.Text, a.FontSize, a.IsGmOnly, a.CreatedBy, a.CreatedAt);
     }
+
+    private static SceneTemplateDto ToTemplateDto(SceneTemplate t) =>
+        new(t.Id, t.SceneId, t.Type, t.X, t.Y, t.Rotation, t.Color, t.SizeInCells, t.Label);
 
     private static MapTokenDto ToTokenDto(MapToken t) =>
         new(t.Id, t.SceneId, t.EntityId, t.Label, t.ImageUrl, t.Color,

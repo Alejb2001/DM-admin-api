@@ -27,6 +27,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<InitiativeEntry> InitiativeEntries => Set<InitiativeEntry>();
     public DbSet<TokenCondition> TokenConditions => Set<TokenCondition>();
     public DbSet<SceneAnnotation> SceneAnnotations => Set<SceneAnnotation>();
+    public DbSet<SceneTemplate> SceneTemplates => Set<SceneTemplate>();
     public DbSet<Handout> Handouts => Set<Handout>();
     public DbSet<JukeboxTrack> JukeboxTracks => Set<JukeboxTrack>();
     public DbSet<RollableTable> RollableTables => Set<RollableTable>();
@@ -277,6 +278,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(s => s.Id).HasDefaultValueSql("gen_random_uuid()");
             e.Property(s => s.Name).IsRequired().HasMaxLength(200);
             e.Property(s => s.Status).IsRequired().HasMaxLength(20).HasDefaultValue("active");
+            e.Property(s => s.GmNotes).HasColumnType("text");
             e.Property(s => s.StartedAt).HasDefaultValueSql("now()");
             e.HasIndex(s => new { s.CampaignId, s.StartedAt });
             e.HasOne(s => s.Campaign)
@@ -436,6 +438,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(a => a.FillOpacity).HasDefaultValue(0.0);
             e.Property(a => a.Text).HasMaxLength(500);
             e.Property(a => a.FontSize).HasDefaultValue(16);
+            e.Property(a => a.IsGmOnly).HasDefaultValue(false);
             e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
             e.HasIndex(a => a.SceneId);
             e.HasOne(a => a.Scene)
@@ -514,6 +517,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(e2 => e2.Table)
              .WithMany(t => t.Entries)
              .HasForeignKey(e2 => e2.TableId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── SceneTemplates ────────────────────────────────────────────────────
+        m.Entity<SceneTemplate>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(t => t.Type).IsRequired().HasMaxLength(20).HasDefaultValue("circle");
+            e.Property(t => t.Color).IsRequired().HasMaxLength(20).HasDefaultValue("#f44336");
+            e.Property(t => t.SizeInCells).HasDefaultValue(3.0);
+            e.Property(t => t.Rotation).HasDefaultValue(0.0);
+            e.Property(t => t.Label).HasMaxLength(100);
+            e.HasIndex(t => t.SceneId);
+            e.HasOne(t => t.Scene)
+             .WithMany()
+             .HasForeignKey(t => t.SceneId)
              .OnDelete(DeleteBehavior.Cascade);
         });
     }

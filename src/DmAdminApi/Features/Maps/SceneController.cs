@@ -149,7 +149,8 @@ public class SceneController(
     public async Task<IActionResult> GetAnnotations(Guid campaignId, Guid sessionId, Guid sceneId)
     {
         if (!await IsMemberOrOwner(campaignId)) return Forbid();
-        return Ok(await scenes.GetAnnotationsAsync(sceneId));
+        var isDm = await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId);
+        return Ok(await scenes.GetAnnotationsAsync(sceneId, isDm));
     }
 
     [HttpPost("{sceneId:guid}/annotations")]
@@ -186,6 +187,51 @@ public class SceneController(
         await scenes.ClearAnnotationsAsync(sceneId);
         await hub.Clients.Group(sessionId.ToString())
             .SendAsync(AnnotationEvents.AnnotationsCleared, sceneId);
+        return NoContent();
+    }
+
+    // ── Templates ─────────────────────────────────────────────────────────────
+
+    [HttpGet("{sceneId:guid}/templates")]
+    public async Task<IActionResult> GetTemplates(Guid campaignId, Guid sessionId, Guid sceneId)
+    {
+        if (!await IsMemberOrOwner(campaignId)) return Forbid();
+        return Ok(await scenes.GetTemplatesAsync(sceneId));
+    }
+
+    [HttpPost("{sceneId:guid}/templates")]
+    public async Task<IActionResult> AddTemplate(
+        Guid campaignId, Guid sessionId, Guid sceneId, [FromBody] CreateTemplateDto dto)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        var template = await scenes.AddTemplateAsync(sceneId, dto);
+        await hub.Clients.Group(sessionId.ToString())
+            .SendAsync(TemplateEvents.TemplateAdded, template);
+        return StatusCode(201, template);
+    }
+
+    [HttpDelete("{sceneId:guid}/templates/{templateId:guid}")]
+    public async Task<IActionResult> DeleteTemplate(
+        Guid campaignId, Guid sessionId, Guid sceneId, Guid templateId)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        try
+        {
+            await scenes.DeleteTemplateAsync(templateId);
+            await hub.Clients.Group(sessionId.ToString())
+                .SendAsync(TemplateEvents.TemplateRemoved, templateId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [HttpDelete("{sceneId:guid}/templates")]
+    public async Task<IActionResult> ClearTemplates(Guid campaignId, Guid sessionId, Guid sceneId)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        await scenes.ClearTemplatesAsync(sceneId);
+        await hub.Clients.Group(sessionId.ToString())
+            .SendAsync(TemplateEvents.TemplatesCleared, sceneId);
         return NoContent();
     }
 

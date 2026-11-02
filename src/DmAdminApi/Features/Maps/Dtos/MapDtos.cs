@@ -82,6 +82,7 @@ public record AnnotationDto(
     double FillOpacity,
     string? Text,
     int FontSize,
+    bool IsGmOnly,
     Guid CreatedBy,
     DateTimeOffset CreatedAt
 );
@@ -94,8 +95,32 @@ public record CreateAnnotationDto(
     string? FillColor = null,
     double FillOpacity = 0,
     [MaxLength(500)] string? Text = null,
-    int FontSize = 16
+    int FontSize = 16,
+    bool IsGmOnly = false
 );
+
+public record SceneTemplateDto(
+    Guid Id,
+    Guid SceneId,
+    string Type,
+    double X,
+    double Y,
+    double Rotation,
+    string Color,
+    double SizeInCells,
+    string? Label
+);
+
+public record CreateTemplateDto(
+    [Required, MaxLength(20)] string Type,
+    double X,
+    double Y,
+    double Rotation = 0,
+    [Required, MaxLength(20)] string Color = "#f44336",
+    double SizeInCells = 3,
+    [MaxLength(100)] string? Label = null
+);
+
 
 public record UpdateTokenDto(
     [Required, MaxLength(100)] string Label,

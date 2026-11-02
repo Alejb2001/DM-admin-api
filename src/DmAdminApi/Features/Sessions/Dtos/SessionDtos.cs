@@ -3,6 +3,7 @@ namespace DmAdminApi.Features.Sessions.Dtos;
 // ── Requests ──────────────────────────────────────────────────────────────────
 public record CreateSessionDto(string Name);
 public record SendMessageDto(string Type, string Content, bool IsSecret);
+public record UpdateGmNotesDto(string? Notes);
 
 // ── Responses ─────────────────────────────────────────────────────────────────
 public record GameSessionDto(

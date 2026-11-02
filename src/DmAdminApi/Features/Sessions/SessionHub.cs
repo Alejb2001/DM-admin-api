@@ -41,6 +41,19 @@ public class SessionHub(SessionPresenceTracker presence, AppDbContext db) : Hub
             .SendAsync(MapEvents.PingReceived, new { x, y });
     }
 
+    public async Task MoveCursor(string sessionId, double x, double y)
+    {
+        if (!Guid.TryParse(sessionId, out var sid)) return;
+        await Clients.OthersInGroup(sid.ToString())
+            .SendAsync(CursorEvents.CursorMoved, new
+            {
+                userId = CurrentUserId,
+                displayName = CurrentDisplayName,
+                x,
+                y
+            });
+    }
+
     public async Task LeaveSession(string sessionId)
     {
         if (!Guid.TryParse(sessionId, out var sid)) return;
@@ -93,6 +106,18 @@ public static class AnnotationEvents
     public const string AnnotationAdded    = "AnnotationAdded";
     public const string AnnotationRemoved  = "AnnotationRemoved";
     public const string AnnotationsCleared = "AnnotationsCleared";
+}
+
+public static class TemplateEvents
+{
+    public const string TemplateAdded   = "TemplateAdded";
+    public const string TemplateRemoved = "TemplateRemoved";
+    public const string TemplatesCleared = "TemplatesCleared";
+}
+
+public static class CursorEvents
+{
+    public const string CursorMoved = "CursorMoved";
 }
 
 public static class CombatEvents

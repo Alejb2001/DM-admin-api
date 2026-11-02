@@ -9,6 +9,7 @@ public class GameSession
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset? EndedAt { get; set; }
     public string Status { get; set; } = "active"; // "active" | "ended"
+    public string? GmNotes { get; set; }
 
     // Navigation
     public Campaign Campaign { get; set; } = null!;

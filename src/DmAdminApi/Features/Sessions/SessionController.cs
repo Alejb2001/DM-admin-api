@@ -136,6 +136,31 @@ public class SessionController(
         }
     }
 
+    // ── Notas DM ──────────────────────────────────────────────────────────────
+
+    [HttpGet("{sid:guid}/notes")]
+    public async Task<IActionResult> GetGmNotes(Guid campaignId, Guid sid)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        var session = await db.GameSessions
+            .FirstOrDefaultAsync(s => s.Id == sid && s.CampaignId == campaignId);
+        if (session is null) return NotFound();
+        return Ok(new { notes = session.GmNotes });
+    }
+
+    [HttpPut("{sid:guid}/notes")]
+    public async Task<IActionResult> UpdateGmNotes(
+        Guid campaignId, Guid sid, [FromBody] UpdateGmNotesDto dto)
+    {
+        if (!await permissions.IsCampaignOwnerAsync(campaignId, CurrentUserId)) return Forbid();
+        var session = await db.GameSessions
+            .FirstOrDefaultAsync(s => s.Id == sid && s.CampaignId == campaignId);
+        if (session is null) return NotFound();
+        session.GmNotes = dto.Notes;
+        await db.SaveChangesAsync();
+        return Ok(new { notes = session.GmNotes });
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private async Task<bool> IsMemberOrOwner(Guid campaignId) =>
