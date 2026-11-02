@@ -543,6 +543,54 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.ToTable("GameSessions");
                 });
 
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.Handout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsRevealed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("Handouts");
+                });
+
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.InitiativeEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -586,6 +634,43 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.ToTable("InitiativeEntries");
                 });
 
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.JukeboxTrack", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.ToTable("JukeboxTracks");
+                });
+
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.MapToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -600,7 +685,7 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Property<double>("AuraOpacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double precision")
-                        .HasDefaultValue(0.3);
+                        .HasDefaultValue(0.29999999999999999);
 
                     b.Property<double?>("AuraRadius")
                         .HasColumnType("double precision");
@@ -668,6 +753,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
 
                     b.Property<Guid>("SceneId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("ShowFacing")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -769,12 +859,15 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.ToTable("RelationshipTypes");
                 });
 
-            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneAnnotation", b =>
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.RollableTable", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("CampaignId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -784,12 +877,46 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("RollableTables");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneAnnotation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("#ef5350");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("FillColor")
                         .HasMaxLength(20)
@@ -885,6 +1012,33 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("SessionScenes");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.TableEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<Guid>("TableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Weight")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TableId");
+
+                    b.ToTable("TableEntries");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.TokenCondition", b =>
@@ -1235,6 +1389,25 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.Handout", b =>
+                {
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.InitiativeEntry", b =>
                 {
                     b.HasOne("DmAdminApi.Infrastructure.Data.Entities.GameSession", "Session")
@@ -1251,6 +1424,17 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Navigation("Session");
 
                     b.Navigation("Token");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.JukeboxTrack", b =>
+                {
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.MapToken", b =>
@@ -1314,11 +1498,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                     b.Navigation("TargetType");
                 });
 
-            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneAnnotation", b =>
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.RollableTable", b =>
                 {
-                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.SessionScene", "Scene")
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.Campaign", "Campaign")
                         .WithMany()
-                        .HasForeignKey("SceneId")
+                        .HasForeignKey("CampaignId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1326,6 +1510,25 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SceneAnnotation", b =>
+                {
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.SessionScene", "Scene")
+                        .WithMany()
+                        .HasForeignKey("SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Creator");
@@ -1342,6 +1545,17 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.TableEntry", b =>
+                {
+                    b.HasOne("DmAdminApi.Infrastructure.Data.Entities.RollableTable", "Table")
+                        .WithMany("Entries")
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Table");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.TokenCondition", b =>
@@ -1420,6 +1634,11 @@ namespace DmAdminApi.Infrastructure.Data.Migrations
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.RelationshipType", b =>
                 {
                     b.Navigation("Relationships");
+                });
+
+            modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.RollableTable", b =>
+                {
+                    b.Navigation("Entries");
                 });
 
             modelBuilder.Entity("DmAdminApi.Infrastructure.Data.Entities.SessionScene", b =>

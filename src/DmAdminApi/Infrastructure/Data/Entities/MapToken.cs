@@ -32,6 +32,7 @@ public class MapToken
     // Transform & State
     public double Rotation { get; set; } = 0;
     public bool IsLocked { get; set; } = false;
+    public bool ShowFacing { get; set; } = false;
 
     public SessionScene Scene { get; set; } = null!;
     public WorldEntity? Entity { get; set; }

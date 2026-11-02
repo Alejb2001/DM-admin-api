@@ -27,6 +27,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<InitiativeEntry> InitiativeEntries => Set<InitiativeEntry>();
     public DbSet<TokenCondition> TokenConditions => Set<TokenCondition>();
     public DbSet<SceneAnnotation> SceneAnnotations => Set<SceneAnnotation>();
+    public DbSet<Handout> Handouts => Set<Handout>();
+    public DbSet<JukeboxTrack> JukeboxTracks => Set<JukeboxTrack>();
+    public DbSet<RollableTable> RollableTables => Set<RollableTable>();
+    public DbSet<TableEntry> TableEntries => Set<TableEntry>();
 
     protected override void OnModelCreating(ModelBuilder m)
     {
@@ -355,6 +359,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(t => t.AuraOpacity).HasDefaultValue(0.3);
             e.Property(t => t.Rotation).HasDefaultValue(0.0);
             e.Property(t => t.IsLocked).HasDefaultValue(false);
+            e.Property(t => t.ShowFacing).HasDefaultValue(false);
             e.HasIndex(t => t.SceneId);
             e.HasOne(t => t.Scene)
              .WithMany(s => s.Tokens)
@@ -441,6 +446,75 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(a => a.CreatedBy)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── Handouts ──────────────────────────────────────────────────────────
+        m.Entity<Handout>(e =>
+        {
+            e.HasKey(h => h.Id);
+            e.Property(h => h.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(h => h.Title).IsRequired().HasMaxLength(200);
+            e.Property(h => h.Type).IsRequired().HasMaxLength(20).HasDefaultValue("text");
+            e.Property(h => h.Content).IsRequired();
+            e.Property(h => h.IsRevealed).HasDefaultValue(false);
+            e.Property(h => h.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(h => h.CampaignId);
+            e.HasOne(h => h.Campaign)
+             .WithMany()
+             .HasForeignKey(h => h.CampaignId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(h => h.Creator)
+             .WithMany()
+             .HasForeignKey(h => h.CreatedBy)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── JukeboxTracks ─────────────────────────────────────────────────────
+        m.Entity<JukeboxTrack>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(t => t.Name).IsRequired().HasMaxLength(200);
+            e.Property(t => t.Url).IsRequired().HasMaxLength(1000);
+            e.Property(t => t.SortOrder).HasDefaultValue(0);
+            e.Property(t => t.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(t => t.CampaignId);
+            e.HasOne(t => t.Campaign)
+             .WithMany()
+             .HasForeignKey(t => t.CampaignId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── RollableTables ────────────────────────────────────────────────────
+        m.Entity<RollableTable>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(t => t.Name).IsRequired().HasMaxLength(200);
+            e.Property(t => t.Description).HasMaxLength(500);
+            e.Property(t => t.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(t => t.CampaignId);
+            e.HasOne(t => t.Campaign)
+             .WithMany()
+             .HasForeignKey(t => t.CampaignId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.Creator)
+             .WithMany()
+             .HasForeignKey(t => t.CreatedBy)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── TableEntries ──────────────────────────────────────────────────────
+        m.Entity<TableEntry>(e =>
+        {
+            e.HasKey(e2 => e2.Id);
+            e.Property(e2 => e2.Id).HasDefaultValueSql("gen_random_uuid()");
+            e.Property(e2 => e2.Text).IsRequired().HasMaxLength(500);
+            e.Property(e2 => e2.Weight).HasDefaultValue(1);
+            e.HasOne(e2 => e2.Table)
+             .WithMany(t => t.Entries)
+             .HasForeignKey(e2 => e2.TableId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

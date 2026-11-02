@@ -53,7 +53,8 @@ public record MapTokenDto(
     string? AuraColor,
     double AuraOpacity,
     double Rotation,
-    bool IsLocked
+    bool IsLocked,
+    bool ShowFacing
 );
 
 public record CreateTokenDto(
@@ -114,5 +115,6 @@ public record UpdateTokenDto(
     string? AuraColor,
     double AuraOpacity,
     double Rotation,
-    bool IsLocked
+    bool IsLocked,
+    bool ShowFacing
 );

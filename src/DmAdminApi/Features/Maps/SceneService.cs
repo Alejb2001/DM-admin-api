@@ -147,6 +147,7 @@ public class SceneService(AppDbContext db)
         token.AuraOpacity = dto.AuraOpacity;
         token.Rotation = dto.Rotation;
         token.IsLocked = dto.IsLocked;
+        token.ShowFacing = dto.ShowFacing;
         token.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return ToTokenDto(token);
@@ -230,5 +231,5 @@ public class SceneService(AppDbContext db)
             t.Bar1Value, t.Bar1Max, t.Bar1Color,
             t.Bar2Value, t.Bar2Max, t.Bar2Color,
             t.AuraRadius, t.AuraColor, t.AuraOpacity,
-            t.Rotation, t.IsLocked);
+            t.Rotation, t.IsLocked, t.ShowFacing);
 }
